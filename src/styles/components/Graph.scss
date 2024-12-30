@@ -1,0 +1,49 @@
+@use '../variables';
+@use '../mixins';
+
+.graph-container {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+}
+
+.graph-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.node {
+  fill: variables.$node-color;
+  stroke: white;
+  stroke-width: 2;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.visited {
+    fill: variables.$node-visited-color;
+  }
+
+  &.selected {
+    fill: variables.$node-selected-color;
+  }
+}
+
+.node-text {
+  fill: white;
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.edge {
+  stroke: variables.$edge-color;
+  stroke-width: 2;
+
+  &.visited {
+    stroke: variables.$edge-visited-color;
+  }
+}
