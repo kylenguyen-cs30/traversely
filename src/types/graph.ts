@@ -9,6 +9,7 @@ export interface Node {
   visited?: boolean;
   distance: number;
   previousNode?: string;
+  type?: string;
 }
 
 export interface Edge {
@@ -17,6 +18,7 @@ export interface Edge {
   target: string;
   weight?: number;
   visited?: boolean;
+  directed?: boolean;
 }
 
 export type NodeMap = Map<string, Node>;
@@ -41,4 +43,23 @@ export interface AlgorithmResult {
   steps: AlgorithmStep[];
   path?: string[];
   distance?: number;
+}
+
+export interface Algorithm {
+  id: AlgorithmType;
+  name: string;
+  description: string;
+  timeComplexity: string;
+  spaceComplexity: string;
+  applicableTypes: string[];
+}
+
+export interface GraphStructure {
+  id: string;
+  title: string;
+  type: "graph" | "tree";
+  subtype: string;
+  description: string;
+  algorithm: Algorithm[];
+  initialState: GraphState;
 }

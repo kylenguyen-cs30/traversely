@@ -47,3 +47,10 @@
     stroke: variables.$edge-visited-color;
   }
 }
+
+
+.graph-types {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
