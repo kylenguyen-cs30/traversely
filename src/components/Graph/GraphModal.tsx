@@ -8,6 +8,7 @@ interface GraphModalProps {
 }
 
 const GraphModal: React.FC<GraphModalProps> = ({ structure, onClose }) => {
+  /* if the data is not mounted return null */
   if (!structure) {
     return null;
   }
