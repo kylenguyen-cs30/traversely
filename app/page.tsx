@@ -1,95 +1,102 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { useState, useEffect, useRef } from "react";
+import Graph from "./components/Graph/Graph";
+import Controls from "./components/Controls/Controls";
+import { Graph as GraphType, Node } from "./types/graph";
+import styles from "./styles/Graph.module.scss";
+import { bfs } from "./algorithms/bfs";
+import { dfs } from "./algorithms/dfs";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // Sample initial  graph - this is what will be displayed
+  const initialGraph: GraphType = {
+    nodes: [
+      { id: "1", label: "A", visited: false, x: 250, y: 50 },
+      { id: "2", label: "B", visited: false, x: 100, y: 150 },
+      { id: "3", label: "C", visited: false, x: 400, y: 150 },
+      { id: "4", label: "D", visited: false, x: 50, y: 300 },
+      { id: "5", label: "E", visited: false, x: 250, y: 300 },
+      { id: "6", label: "F", visited: false, x: 450, y: 300 },
+    ],
+    edges: [
+      { source: "1", target: "2" },
+      { source: "1", target: "3" },
+      { source: "2", target: "4" },
+      { source: "2", target: "5" },
+      { source: "3", target: "5" },
+      { source: "3", target: "6" },
+      { source: "1", target: "2" },
+      { source: "1", target: "2" },
+    ],
+  };
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const [graph, setGraph] = useState<GraphType>(initialGraph);
+  const [algorithm, setAlgorithm] = useState<"bfs" | "dfs">("bfs");
+  const [traversalResult, setTraversalResult] = useState<Node[]>([]);
+  const [visitedNodes, setVisitedNodes] = useState<string[]>([]);
+  const [currentNode, setCurrentNode] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [totalSteps, setTotalSteps] = useState(0);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const runAlgorithm = () => {
+    //reset visualization
+    resetVisualization();
+
+    // run the selected algorithm
+    const startNodeId = "1"; // start from node A
+    const result =
+      algorithm === "bfs" ? bfs(graph, startNodeId) : dfs(graph, startNodeId);
+
+    setTraversalResult(result);
+    setTotalSteps(result.length);
+
+    // start visualization
+    startVisualization(result);
+  };
+
+  const startVisualization = (result: Node[]) => {
+    if (result.length === 0) return;
+
+    setIsRunning(true);
+    setCurrentStep(1);
+    setVisitedNodes([result[0].id]);
+    setCurrentNode(result[0].id);
+
+    let step = 1;
+  };
+  // for now just to see the styling in action
+  const [highlightedNodes, setHighlightedNodes] = useState<string[]>([
+    "2",
+    "3",
+  ]);
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>Graph Algorithm Visualization</h1>
+      <h2>Basic Graph Display</h2>
+
+      <Graph
+        graph={graph}
+        visitedNodes={highlightedNodes}
+        currentNode={currentNode}
+      />
+
+      <div className={styles.controls}>
+        <p>This is a basic graph display using React Flow.</p>
+        <p>Node A (red) is the current node.</p>
+        <p>Nodes B and C (green) are visited nodes.</p>
+      </div>
     </div>
   );
 }
