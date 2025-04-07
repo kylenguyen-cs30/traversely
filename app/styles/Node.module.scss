@@ -1,0 +1,49 @@
+.nodeContent {
+  padding: 10px;
+  border-radius: 8px;
+  width: 120px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: white;
+  border: 2px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.nodeLabel {
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  color: #333;
+}
+
+.nodeVisited {
+  background-color: #69db7c;
+  border-color: #2b8a3e;
+  box-shadow: 0 0 10px rgba(43, 138, 62, 0.5);
+}
+
+.nodeCurrent {
+  background-color: #ff6b6b;
+  border-color: #c92a2a;
+  box-shadow: 0 0 10px rgba(201, 42, 42, 0.5);
+}
+
+// Handle styles
+:global(.react-flow__handle) {
+  width: 8px;
+  height: 8px;
+  background-color: #555;
+
+  &:hover {
+    background-color: #888;
+  }
+}
