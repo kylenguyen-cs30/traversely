@@ -25,7 +25,7 @@ const Controls = ({
   isRunning,
   currentStep,
   totalSteps,
-}: ControlsProps) => {
+}: ControlProps) => {
   return (
     <div className={styles.controlContainer}>
       <div className={styles.algorithmSelector}>

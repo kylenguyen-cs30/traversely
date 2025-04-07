@@ -25,8 +25,8 @@ export default function Home() {
       { source: "2", target: "5" },
       { source: "3", target: "5" },
       { source: "3", target: "6" },
-      { source: "1", target: "2" },
-      { source: "1", target: "2" },
+      { source: "4", target: "5" },
+      { source: "5", target: "6" },
     ],
   };
 
@@ -66,7 +66,11 @@ export default function Home() {
   };
 
   const startVisualization = (result: Node[]) => {
-    if (result.length === 0) return;
+    console.log("Traversal result: ", result);
+    if (!result || result.length === 0) {
+      console.log("Result is empty");
+      return;
+    }
 
     setIsRunning(true);
     setCurrentStep(1);
@@ -74,6 +78,90 @@ export default function Home() {
     setCurrentNode(result[0].id);
 
     let step = 1;
+
+    intervalRef.current = setInterval(() => {
+      console.log("current step: ", step, "result length", result.length);
+
+      // stop the interval
+      if (step >= result.length) {
+        console.log("Animation complete or invalid step");
+        clearInterval(intervalRef.current!);
+        setIsRunning(false);
+        return;
+      }
+
+      try {
+        // capture result[step] outside first
+        const currentNodeId = result[step].id;
+
+        setCurrentStep(step + 1);
+        // only update if we have a valid result
+        if (result[step] && typeof result[step].id === "string") {
+          setVisitedNodes((prev) => [...prev, currentNodeId]);
+          setCurrentNode(result[step].id);
+        } else {
+          console.error("Invalid node at step", step);
+        }
+      } catch (error) {
+        console.error("error during animation step : ", error);
+        clearInterval(intervalRef.current!);
+        setIsRunning(false);
+        return;
+      }
+
+      // increment the step
+      step++;
+    }, 500); // 0.5 second interval between step
+  };
+
+  const resetVisualization = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setIsRunning(false);
+    setCurrentStep(0);
+    setVisitedNodes([]);
+    setCurrentNode("");
+    setTraversalResult([]);
+    setTotalSteps(0);
+  };
+
+  // handleNext animation
+  const handleNext = () => {
+    if (currentStep < traversalResult.length) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+
+      // update visited node and current node
+      setVisitedNodes(
+        traversalResult.slice(0, nextStep).map((node) => node.id),
+      );
+      setCurrentNode(traversalResult[nextStep - 1].id);
+    }
+  };
+
+  // handlePrev step
+  const handlePrev = () => {
+    if (currentStep > 1) {
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+
+      // update visited node
+      setVisitedNodes(
+        traversalResult.slice(0, prevStep).map((node) => node.id),
+      );
+      setCurrentNode(traversalResult[prevStep - 1].id);
+    } else if (currentStep === 1) {
+      // reset initial state
+      setCurrentStep(0);
+      setVisitedNodes([]);
+      setCurrentNode("");
+    }
+  };
+
+  const handleAlgorithmChange = (algo: "bfs" | "dfs") => {
+    setAlgorithm(algo);
+    resetVisualization();
   };
   // for now just to see the styling in action
   const [highlightedNodes, setHighlightedNodes] = useState<string[]>([
@@ -86,16 +174,38 @@ export default function Home() {
       <h1>Graph Algorithm Visualization</h1>
       <h2>Basic Graph Display</h2>
 
-      <Graph
-        graph={graph}
-        visitedNodes={highlightedNodes}
-        currentNode={currentNode}
-      />
+      <div className={styles.graphContainer}>
+        <Graph
+          graph={graph}
+          visitedNodes={visitedNodes}
+          currentNode={currentNode}
+        />
+      </div>
 
-      <div className={styles.controls}>
-        <p>This is a basic graph display using React Flow.</p>
-        <p>Node A (red) is the current node.</p>
-        <p>Nodes B and C (green) are visited nodes.</p>
+      <Controls
+        onRunAlgorithm={runAlgorithm}
+        onNext={handleNext}
+        onPrev={handlePrev}
+        onReset={resetVisualization}
+        onAlgorithmChange={handleAlgorithmChange}
+        selectedAlgorithm={algorithm}
+        isRunning={isRunning}
+        currentStep={currentStep}
+        totalSteps={totalSteps}
+      ></Controls>
+
+      <div className={styles.traversalPath}>
+        <div className={styles.traversalPathTitle}>Traversal Path:</div>
+        <div>
+          {visitedNodes.length > 0
+            ? visitedNodes
+                .map((id) => {
+                  const node = graph.nodes.find((n) => n.id === id);
+                  return node ? node.label : id;
+                })
+                .join(" ➡️")
+            : "Run Algorithm to see the traveral path"}
+        </div>
       </div>
     </div>
   );
