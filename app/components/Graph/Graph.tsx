@@ -15,6 +15,8 @@ import "@xyflow/react/dist/style.css";
 import styles from "@/app/styles/Graph.module.scss";
 import { Graph as GraphType, Node as GraphNode } from "@/app/types/graph";
 
+import CustomNode from "./Node";
+
 interface GraphProps {
   graph: GraphType;
   visitedNodes: string[];
@@ -22,29 +24,25 @@ interface GraphProps {
 }
 
 const Graph = ({ graph, visitedNodes, currentNode }: GraphProps) => {
+  // define note type
+  const nodeTypes = {
+    custom: CustomNode,
+  };
   // convert our graph model to react flow nodes
   const createReactFlowNodes = useCallback(
     (graphData: GraphType, visited: string[], current?: string) => {
       return graphData.nodes.map((node) => {
         // determine node style based on state
-        let className = styles.flowNode;
-
-        if (current === node.id) {
-          // current node being processed
-          className += ` ${styles.currentNode}`;
-        } else if (visited.includes(node.id)) {
-          // already visited node
-          className += ` ${styles.visitedNode}`;
-        } else {
-          // default node
-          className += ` ${styles.defaultNode}`;
-        }
 
         return {
           id: node.id,
-          data: { label: node.label },
+          type: "custom",
+          data: {
+            label: node.label,
+            isVisited: visited.includes(node.id),
+            isCurrent: current === node.id,
+          },
           position: { x: node.x || 0, y: node.y || 0 },
-          className,
         } as Node;
       });
     },
@@ -92,6 +90,7 @@ const Graph = ({ graph, visitedNodes, currentNode }: GraphProps) => {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
         fitView
         attributionPosition="bottom-left"
         connectionLineType={ConnectionLineType.SmoothStep}
